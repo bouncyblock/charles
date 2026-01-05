@@ -22,5 +22,10 @@ DISCORD_API_KEY=""
 
 Your AI api key should come from [ai.hackclub.com](ai.hackclub.com), as thats the only key I've tested.
 
+When setting up your discord bot, give it all 3 Privileged Gateway Intents and Administraitor as the Bot Permisions.
+Then, invite it to your server. (you may need to turn on Guild Install in Installation and application.commands + bot in Scopes)
+
+11Labs API key is not currently required as no code that supports TTS has been written.
+
 Current features:
-- nothing
+- talking with ai + message history (as long as console is not reset)
