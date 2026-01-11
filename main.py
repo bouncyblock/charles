@@ -5,6 +5,8 @@ import requests
 from dotenv import load_dotenv
 import os
 import json
+import asyncio
+
 
 load_dotenv()
 
@@ -144,6 +146,9 @@ initAiPrompt()
 # setting up the bot
 
 intents = discord.Intents.default()
+intents.message_content = True
+intents.members = True
+intents.guilds = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 tree = bot.tree
@@ -167,5 +172,60 @@ async def charles(interaction: discord.Interaction, message: str):
     result = aiTextInTextOut(userInput)
     print(f"charles: {result}")
     await interaction.followup.send(result)
+
+
+
+
+@tree.command(name="take_em_out_back", description="send them to the barn above... to be judged by sam #2")
+@discord.app_commands.describe(user="the user you want to ban")
+async def thebarn(interaction: discord.Interaction, message: str):
+    await interaction.response.defer()
+
+    target = None
+
+    # do they exsist
+    if interaction.guild:
+        target = discord.utils.find(
+            lambda m: m.mention == message or m.name == message or m.display_name == message,
+            interaction.guild.members
+        )
+
+    if target is None:
+        await interaction.followup.send(f"couldn't find `{message}`.")
+        return
+
+    # join vc
+    if not interaction.user.voice:
+        await interaction.followup.send("you must be in a voice channel for the sacred ritual.")
+        return
+
+    voice_channel = interaction.user.voice.channel
+
+    try:
+        vc = await voice_channel.connect()
+    except discord.ClientException:
+        vc = discord.utils.get(interaction.client.voice_clients, guild=interaction.guild)
+
+
+    vc.play(discord.FFmpegPCMAudio("sfx.mp3"))
+    while vc.is_playing():
+        await asyncio.sleep(0.5)
+
+
+    #banabnabnanbanbnanbanbna
+    try:
+        await target.edit(voice_channel=None)
+        result = f"{target.mention} has been taken out back."
+    except Exception as e:
+        result = f"{target.mention} has escaped the barn. stay safe, everyone"
+
+
+
+
+    await vc.disconnect()
+    await interaction.followup.send(result)
+
+
+
 
 bot.run(DISCORD_API_KEY)
