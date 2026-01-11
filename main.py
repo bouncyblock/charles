@@ -159,7 +159,7 @@ async def on_ready():
     await tree.sync() 
     print("Slash commands synced.") 
 
-# text
+# text ai response
 @tree.command(name = "charles", description = "eternally telling us about his 24 brothers, all named sam")
 @discord.app_commands.describe(message = "message")
 async def charles(interaction: discord.Interaction, message: str):
@@ -175,9 +175,9 @@ async def charles(interaction: discord.Interaction, message: str):
 
 
 
-
+# kick someone from call
 @tree.command(name="take_em_out_back", description="send them to the barn above... to be judged by sam #2")
-@discord.app_commands.describe(user="the user you want to ban")
+@discord.app_commands.describe(message="the user you want to kick")
 async def thebarn(interaction: discord.Interaction, message: str):
     await interaction.response.defer()
 
@@ -224,6 +224,60 @@ async def thebarn(interaction: discord.Interaction, message: str):
 
     await vc.disconnect()
     await interaction.followup.send(result)
+
+
+
+# kick everyone from call
+@tree.command(name="nuke", description="mutually assured destruction")
+async def thebarn(interaction: discord.Interaction):
+    await interaction.response.defer()
+
+
+    # join vc
+    if not interaction.user.voice:
+        await interaction.followup.send("you must be in a voice channel for the sacred ritual.")
+        return
+
+    voice_channel = interaction.user.voice.channel
+
+    try:
+        vc = await voice_channel.connect()
+    except discord.ClientException:
+        vc = discord.utils.get(interaction.client.voice_clients, guild=interaction.guild)
+
+
+    vc.play(discord.FFmpegPCMAudio("round-intro.mp3"))
+    while vc.is_playing():
+        await asyncio.sleep(0.5)
+
+
+    # kick everyone from call
+    try:
+        
+        for target in voice_channel.members:
+
+            if target == interaction.client.user:
+                continue
+
+            await target.edit(voice_channel=None)
+            #rate limit accounting code here?
+            
+    except Exception as e:
+        result = "anti-air defense was not accounted for"
+
+
+
+
+    vc.play(discord.FFmpegPCMAudio("round-rest.mp3"))
+    while vc.is_playing():
+        await asyncio.sleep(0.5)
+
+
+
+    await vc.disconnect()
+    await interaction.followup.send(result)
+
+
 
 
 
